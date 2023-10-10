@@ -46,7 +46,7 @@ total_total_size = get_size_folder(input_path) # for stats/progress
 print("\n\nGetting Files List...\n")
 
 for path, dir, path_files in os.walk(input_path):
-    [files.append([i, os.stat(path+"/"+i).st_ctime, path]) for i in path_files]
+    [files.append([i, os.stat(path+"/"+i).st_mtime, path]) for i in path_files]
 
 print("\n\nSorting Files...\n")
 files = sorted(files, key=lambda tup: tup[1], reverse=False) # sort by date, you might have to flip the true/false?
