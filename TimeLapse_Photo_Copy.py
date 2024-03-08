@@ -41,6 +41,8 @@ total_size = 0
 files = list()
 input_path = str(input("\n\nPaste full input path here:\n\n"))
 output_path = str(input("\n\nPaste full output path here:\n\n"))
+if (not os.path.exists(output_path)):
+    os.makedirs(output_path)
 total_files = get_num_files(input_path) # for stats/progress
 total_total_size = get_size_folder(input_path) # for stats/progress
 print("\n\nGetting Files List...\n")
