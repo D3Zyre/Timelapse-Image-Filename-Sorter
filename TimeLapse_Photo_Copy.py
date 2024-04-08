@@ -2,40 +2,6 @@ import os
 from shutil import copy2
 import time
 
-def get_num_files(path, print_stats_every_x_seconds = 1):
-    """
-    Counts the number of files in a directory using os.walk
-    set print_stats_every_x_seconds to -1 to never print
-    """
-    num_files = 0
-    t = time.time()
-    if print_stats_every_x_seconds != -1:
-        print("\nChecking number of files for path "+str(path)+"...\n")
-    for path, dir, file in os.walk(os.path.expanduser(path)):
-        num_files += len(file)
-        if time.time() - t >= print_stats_every_x_seconds and print_stats_every_x_seconds != -1:
-            print("\r" + str(num_files) + " files...", end="")
-            t = time.time()
-
-    return num_files
-
-def get_size_folder(path, print_stats_every_x_seconds = 1):
-    """
-    gets the size of the folder
-    set print_stats_every_x_seconds to -1 to never print
-    """
-    size = 0
-    t = time.time()
-    if print_stats_every_x_seconds != -1:
-        print("\nChecking size of path "+str(path)+"...\n")
-    for path, dir, files in os.walk(os.path.expanduser(path)):
-        size += sum([os.stat(str(path)+"/"+str(file))[6] for file in files])
-        if time.time() - t >= print_stats_every_x_seconds and print_stats_every_x_seconds != -1:
-            print("\r" + str(size) + " Bytes...", end="")
-            t = time.time()
-    
-    return size
-
 count = 0
 total_size = 0
 files = list()
@@ -43,12 +9,11 @@ input_path = str(input("\n\nPaste full input path here:\n\n"))
 output_path = str(input("\n\nPaste full output path here:\n\n"))
 if (not os.path.exists(output_path)):
     os.makedirs(output_path)
-total_files = get_num_files(input_path) # for stats/progress
-total_total_size = get_size_folder(input_path) # for stats/progress
-print("\n\nGetting Files List...\n")
 
 for path, dir, path_files in os.walk(input_path):
-    [files.append([i, os.stat(path+"/"+i).st_mtime, path]) for i in path_files]
+    [files.append((i, os.stat(path+"/"+i).st_mtime, path, os.stat(path+"/"+i).st_size)) for i in path_files if i.endswith((".JPG", ".jpg", ".PNG", ".png"))]
+total_files = len(files) # for stats/progress
+total_total_size = sum([file[3] for file in files]) # for stats/progress
 
 print("\n\nSorting Files...\n")
 files = sorted(files, key=lambda tup: tup[1], reverse=False) # sort by date, you might have to flip the true/false?
@@ -62,7 +27,7 @@ for file in files:
     path = paths[n]
     count += 1
     filename = "G{}.{}".format(str(count).zfill(8), str(file).split(".")[-1])
-    destination = os.path.expanduser(output_path+"/"+filename)
+    destination = os.path.abspath(output_path+"/"+filename)
     size_of_file = os.stat(path+"/"+file)[6]
     total_size += int(size_of_file)
     current_time = time.time() - t
